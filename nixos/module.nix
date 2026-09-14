@@ -70,7 +70,8 @@ in
         # Nightscout sits behind a TLS-terminating proxy, so it serves plain HTTP
         # itself and must not redirect to HTTPS on its own.
         INSECURE_USE_HTTP = "true";
-      } // cfg.settings;
+      }
+      // cfg.settings;
 
       serviceConfig = {
         ExecStart = lib.getExe cfg.package;

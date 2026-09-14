@@ -113,6 +113,7 @@ stdenv.mkDerivation {
     homepage = "https://github.com/nightscout/cgm-remote-monitor";
     license = lib.licenses.agpl3Only;
     mainProgram = "nightscout";
-    platforms = lib.platforms.linux;
+    # Pure Node with no native dependencies, so nothing here is Linux-specific.
+    platforms = lib.platforms.unix;
   };
 }
