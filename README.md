@@ -110,3 +110,13 @@ to this server, inserts, reads back, and builds an index.
 
 Bumping MongoDB means editing the version and the hash together in
 `nix/mongodb.nix`.
+
+## License
+
+MIT — see [LICENSE](LICENSE). This covers the packaging in this repository only.
+
+Nightscout itself is **AGPL-3.0** and is not vendored here: it is a pinned
+flake input, fetched from upstream at build time. `nix/package.nix` records
+`agpl3Only` as the licence of the package it builds, which is Nightscout's,
+not this repository's.
+
