@@ -3,7 +3,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     core-flake = {
-      url = "git+ssh://git@github.com/purplenoodlesoop/core-flake";
+      url = "github:purplenoodlesoop/core-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

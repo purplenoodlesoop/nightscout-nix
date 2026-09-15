@@ -10,15 +10,15 @@
       "locked": {
         "lastModified": 1789430235,
         "narHash": "sha256-5N05lE3v/V4CZD7mJMzB7D5DgcM/uUjKrbk6tzD/PdM=",
-        "ref": "refs/heads/master",
+        "owner": "purplenoodlesoop",
+        "repo": "core-flake",
         "rev": "42442dcecb46a326aedbdab1b08f6fad2bff987a",
-        "revCount": 21,
-        "type": "git",
-        "url": "ssh://git@github.com/purplenoodlesoop/core-flake"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/purplenoodlesoop/core-flake"
+        "owner": "purplenoodlesoop",
+        "repo": "core-flake",
+        "type": "github"
       }
     },
     "flake-utils": {
