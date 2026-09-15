@@ -24,6 +24,15 @@ pinned flake input, so this repository carries no vendored application code.
 }
 ```
 
+To let this flake run the database too:
+
+```nix
+services.nightscout.database = {
+  enable = true;
+  package = inputs.nightscout-nix.packages.${system}.mongodb;
+};
+```
+
 `API_SECRET` and `MONGO_CONNECTION` belong in `environmentFile`, never in
 `settings`: everything in `settings` is world-readable in the Nix store. The
 module asserts on this rather than trusting the reader to remember.
@@ -77,3 +86,27 @@ rebuilding yields the same one.
 - Because of that, the consumer must run `patchShebangs node_modules` itself
   *before* invoking anything from `.bin`. stdenv's own pass happens in
   `fixupPhase`, long after the build phase that needs it.
+
+## Why the database is packaged here
+
+Nightscout pins the node driver at `^5.9.2`, and MongoDB supports that driver
+only against servers **7.0 or older**. That constraint belongs to Nightscout, not
+to whatever host happens to run it, so the matching server is exposed here as
+`packages.<system>.mongodb`.
+
+nixpkgs ships `mongodb-ce` 8.2, which is an unsupported pairing with that driver.
+`pkgs.mongodb` is 7.0 but unfree, so Hydra does not cache it and it builds from
+source — hours of `scons` on a small host, for a package upstream already ships
+as a binary.
+
+So `nix/mongodb.nix` keeps `mongodb-ce`'s packaging — official tarball, unpacked
+and relinked by `autoPatchelfHook`, nothing compiled — and swaps the tarball for
+7.0.40. If a future version needed a library the packaging does not list,
+`autoPatchelfHook` fails the build by name rather than producing a `mongod` that
+dies at runtime.
+
+Verified end to end rather than by `--version`: Nightscout's own driver connects
+to this server, inserts, reads back, and builds an index.
+
+Bumping MongoDB means editing the version and the hash together in
+`nix/mongodb.nix`.

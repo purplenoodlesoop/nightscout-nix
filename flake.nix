@@ -21,9 +21,14 @@
     lib.evalFlake {
       specialArgs = { inherit nightscout-src; };
 
+      # mongodb-ce is SSPL, which nixpkgs treats as unfree. Allowed by name for
+      # this flake's package set only — never a blanket allowUnfree.
+      config.allowUnfreePredicate = pkg: builtins.elem (pkg.pname or "") [ "mongodb-ce" ];
+
       perSystem.imports = with nixosModules; [
         tasks
         ./nix/checks.nix
+        ./nix/mongodb.nix
         ./nix/nightscout.nix
         ./nix/tasks.nix
       ];

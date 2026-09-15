@@ -44,6 +44,23 @@ in
       '';
     };
 
+    database = {
+      enable = mkEnableOption ''
+        a local MongoDB for Nightscout, bound to loopback. Off by default: a
+        host may point at a database it already runs, or a hosted one
+      '';
+
+      package = mkOption {
+        type = types.package;
+        description = ''
+          MongoDB package to run. Must be a server Nightscout's pinned driver
+          supports — 7.0 or older. This flake exposes a suitable one as
+          `packages.<system>.mongodb`; passing `pkgs.mongodb-ce` instead gives
+          an 8.x server the driver does not support.
+        '';
+      };
+    };
+
     settings = mkOption {
       type = types.attrsOf types.str;
       default = { };
@@ -59,6 +76,14 @@ in
   };
 
   config = mkIf cfg.enable {
+    services.mongodb = mkIf cfg.database.enable {
+      enable = true;
+      package = cfg.database.package;
+      # Loopback rather than relying on the firewall alone: nothing outside the
+      # host has any business reaching the datastore.
+      bind_ip = "127.0.0.1";
+    };
+
     systemd.services.nightscout = {
       description = "Nightscout CGM remote monitor";
       wantedBy = [ "multi-user.target" ];
