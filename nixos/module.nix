@@ -14,6 +14,15 @@ let
     ;
 
   cfg = config.services.nightscout;
+
+  render =
+    value:
+    if builtins.isList value then
+      lib.concatStringsSep " " value
+    else if builtins.isBool value then
+      lib.boolToString value
+    else
+      toString value;
 in
 {
   options.services.nightscout = {
@@ -62,15 +71,31 @@ in
     };
 
     settings = mkOption {
-      type = types.attrsOf types.str;
+      type = types.attrsOf (
+        types.oneOf [
+          types.str
+          types.int
+          types.bool
+          (types.listOf types.str)
+        ]
+      );
       default = { };
       description = ''
-        Non-secret Nightscout environment variables. These end up in the Nix
-        store, so never put credentials here — use `environmentFile`.
+        Non-secret Nightscout environment variables. Lists are joined with
+        spaces, which is how Nightscout reads `ENABLE`, `SHOW_PLUGINS` and the
+        other list settings; booleans become `true` or `false`. These end up in
+        the Nix store, so never put credentials here — use `environmentFile`.
       '';
       example = {
         DISPLAY_UNITS = "mmol";
         AUTH_DEFAULT_ROLES = "denied";
+        ENABLE = [
+          "careportal"
+          "iob"
+          "cob"
+        ];
+        BG_LOW = 56;
+        ALARM_HIGH = false;
       };
     };
   };
@@ -96,7 +121,7 @@ in
         # itself and must not redirect to HTTPS on its own.
         INSECURE_USE_HTTP = "true";
       }
-      // cfg.settings;
+      // lib.mapAttrs (_: render) cfg.settings;
 
       serviceConfig = {
         ExecStart = lib.getExe cfg.package;
